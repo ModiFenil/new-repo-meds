@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Apply for Leave - Medscred HRMS</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Add Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #e9f0f9 0%, #d1def3 50%, #b0c7ea 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1565c0;
+        }
+        
+        .leave-form-container {
+            max-width: 700px;
+            margin: 3rem auto 5rem auto;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(10px);
+            border-radius: 1.25rem;
+            box-shadow: 0 12px 30px rgba(33, 97, 167, 0.3);
+            border: 2px solid #1e7be4;
+            overflow: hidden;
+        }
+        
+        .form-header {
+            background: linear-gradient(135deg, #1361cc, #1e7be4);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.75rem;
+            letter-spacing: 0.02em;
+            text-shadow: 0 2px 4px rgba(14, 52, 101, 0.75);
+        }
+        
+        .form-header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+        }
+        
+        .form-header p {
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+            color: #e0eefa;
+        }
+        
+        .form-body {
+            padding: 2rem 2.5rem;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #144a89;
+        }
+        
+        select.form-select, input.form-control, textarea.form-control {
+            border-radius: 0.8rem;
+            border: 1.8px solid #aad3ff;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: inset 0 0 6px rgba(25, 111, 204, 0.1);
+            padding: 0.75rem 1rem;
+        }
+        
+        select.form-select:focus, input.form-control:focus, textarea.form-control:focus {
+            box-shadow: 0 0 8px #1e7be4cc;
+            border-color: #1e7be4;
+            outline: none;
+        }
+        
+        /* Readonly input styling */
+        input.form-control:read-only {
+            background-color: #f8f9fa !important;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            border: none;
+            color: white;
+            font-weight: 700;
+            font-size: 1.15rem;
+            padding: 0.85rem 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(56, 142, 60, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.6rem;
+            user-select: none;
+        }
+        
+        .btn-submit:hover,
+        .btn-submit:focus {
+            background: linear-gradient(135deg, #388e3c, #2e6e2b);
+            box-shadow: 0 8px 25px rgba(38, 101, 27, 0.65);
+            outline: none;
+            color: white;
+        }
+        
+        .btn-submit:disabled {
+            background: #90a490;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .btn-submit .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+        }
+
+        .btn-back {
+            background: #607d8b;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.5rem 1.6rem;
+            border-radius: 0.8rem;
+            margin-bottom: 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            user-select: none;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-back:hover,
+        .btn-back:focus {
+            background: #455a64;
+            outline: none;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .form-check {
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        
+        .form-check-input {
+            width: 1.2rem;
+            height: 1.2rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .form-check-label {
+            user-select: none;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #2e5caa;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        #half_day_div {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Date input with calendar icon */
+        .date-input-group {
+            position: relative;
+        }
+        
+        .date-input-group .form-control {
+            padding-right: 2.5rem;
+        }
+        
+        .date-input-group .calendar-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1e7be4;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+
+        .date-input-group .calendar-icon.disabled {
+            color: #adb5bd;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* Disabled date input styling */
+        .date-input-disabled {
+            background-color: #f8f9fa !important;
+            border-color: #dee2e6 !important;
+            cursor: not-allowed !important;
+        }
+
+        @media (max-width: 576px) {
+            .leave-form-container {
+                margin: 2rem 1rem;
+                padding: 0;
+            }
+            
+            .form-header {
+                font-size: 1.5rem;
+                padding: 1.5rem 1.2rem;
+            }
+            
+            .form-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .form-body {
+                padding: 1.5rem;
+            }
+            
+            .btn-submit {
+                font-size: 1rem;
+                padding: 0.75rem;
+            }
+        }
+
+        /* Error alert style */
+        .alert-danger {
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            font-size: 0.95rem;
+            border-radius: 0.8rem;
+            padding: 0.85rem 1.25rem;
+            margin-bottom: 1.3rem;
+            box-shadow: 0 6px 20px rgba(255, 75, 75, 0.35);
+            background-color: #f8d7da;
+            color: #842029;
+            border-color: #f5c2c7;
+            display: flex;
+            align-items: center;
+            gap: 0.675rem;
+        }
+        
+        .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            width: 350px;
+            max-width: 100%;
+        }
+
+        .toast {
+            border-radius: 0.8rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border: none;
+            overflow: hidden;
+        }
+
+        .toast-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-header {
+            border-bottom: none;
+            background-color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+        }
+
+        .toast-body {
+            padding: 1rem;
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Flatpickr calendar styling overrides */
+        .flatpickr-calendar {
+            border-radius: 0.8rem !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        .flatpickr-day.selected {
+            background: #1e7be4 !important;
+            border-color: #1e7be4 !important;
+        }
+
+        .flatpickr-day.today {
+            border-color: #1e7be4 !important;
+        }
+
+        .flatpickr-day.today:hover {
+            background: #e9f0f9 !important;
+            color: #1e7be4 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification Container -->
+    <div class="toast-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="toast show toast-{{ category }}" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">
+                            <i class="bi 
+                            {% if category == 'success' %}
+                                bi-check-circle-fill text-success
+                            {% else %}
+                                bi-exclamation-triangle-fill text-danger
+                            {% endif %}
+                            toast-icon"></i>
+                            {{ 'Success' if category == 'success' else 'Error' }}
+                        </strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+
+    <div class="container">
+        <div class="leave-form-container" role="main">
+            <header class="form-header" aria-label="Form header">
+                <h1><i class="bi bi-calendar-plus me-2" aria-hidden="true"></i>Apply for Leave</h1>
+                <p class="mb-0">Submit your leave application</p>
+            </header>
+            <main class="form-body">
+                <a href="{{ url_for('user_dashboard') }}" class="btn-back" role="link" aria-label="Back to dashboard">
+                    <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back to Dashboard
+                </a>
+
+                {% if error %}
+                <div class="alert alert-danger" role="alert" aria-live="assertive">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+                {% endif %}
+
+                <form method="POST" novalidate id="leaveForm">
+                    <div class="mb-4">
+                        <label for="leave_type" class="form-label required-field">Leave Type</label>
+                        <select class="form-select" id="leave_type" name="leave_type" required aria-required="true" aria-describedby="leaveTypeHelp">
+                            <option value="">Select leave type</option>
+                            <option value="sick" {% if request.form.get('leave_type') == 'sick' %}selected{% endif %}>Sick Leave</option>
+                            <option value="casual" {% if request.form.get('leave_type') == 'casual' %}selected{% endif %}>Casual Leave</option>
+                            <option value="paid" {% if request.form.get('leave_type') == 'paid' %}selected{% endif %}>Paid Leave</option>
+                        </select>
+                        <div id="leaveTypeHelp" class="form-text">Choose the type of leave you want to apply for.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="start_date" class="form-label required-field">Start Date</label>
+                            <div class="date-input-group">
+                                <input type="text" class="form-control" id="start_date" name="start_date" required aria-required="true" aria-describedby="startDateHelp" value="{{ request.form.get('start_date', '') }}" placeholder="Select start date" readonly>
+                                <i class="bi bi-calendar calendar-icon"></i>
+                            </div>
+                            <div id="startDateHelp" class="form-text">Select your first day of leave.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="end_date" class="form-label required-field">End Date</label>
+                            <div class="date-input-group">
+                                <input type="text" class="form-control" id="end_date" name="end_date" required aria-required="true" aria-describedby="endDateHelp" value="{{ request.form.get('end_date', '') }}" placeholder="Select end date" readonly>
+                                <i class="bi bi-calendar calendar-icon"></i>
+                            </div>
+                            <div id="endDateHelp" class="form-text">Select your last day of leave.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="half_day" name="half_day" {% if request.form.get('half_day') %}checked{% endif %}>
+                            <label class="form-check-label" for="half_day">Half Day Leave</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="half_day_div" style="display: none;">
+                        <label for="half_day_period" class="form-label required-field">Half Day Period</label>
+                        <select class="form-select" id="half_day_period" name="half_day_period" aria-describedby="halfDayPeriodHelp">
+                            <option value="">Select period</option>
+                            <option value="first_half" {% if request.form.get('half_day_period') == 'first_half' %}selected{% endif %}>First Half (Morning)</option>
+                            <option value="second_half" {% if request.form.get('half_day_period') == 'second_half' %}selected{% endif %}>Second Half (Afternoon)</option>
+                        </select>
+                        <div id="halfDayPeriodHelp" class="form-text">Select which half of the day you'll be on leave.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="reason" class="form-label required-field">Reason for Leave</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="4" required aria-required="true" aria-describedby="reasonHelp" placeholder="Please provide a detailed reason for your leave application">{{ request.form.get('reason', '') }}</textarea>
+                        <div id="reasonHelp" class="form-text">Explain your reason to help the approver understand your request.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="emergency_contact" class="form-label">Emergency Contact (Optional)</label>
+                        <input type="tel" class="form-control" id="emergency_contact" name="emergency_contact" value="{{ request.form.get('emergency_contact', '') }}" placeholder="Contact number during leave" aria-describedby="emergencyContactHelp">
+                        <div id="emergencyContactHelp" class="form-text">Provide a phone number where you can be reached in case of emergency.</div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="bi bi-send me-2" aria-hidden="true"></i>Submit Application
+                    </button>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Add Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all required elements
+            const today = new Date();
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+            const endDateIcon = endDateInput.nextElementSibling;
+            const halfDayCheckbox = document.getElementById('half_day');
+            const halfDayDiv = document.getElementById('half_day_div');
+            const halfDaySelect = document.getElementById('half_day_period');
+            const form = document.getElementById('leaveForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const toastContainer = document.querySelector('.toast-container');
+
+            // Initialize Bootstrap Toasts
+            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            const toastList = toastElList.map(function(toastEl) {
+                return new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 5000
+                });
+            });
+
+            // Auto-hide toasts after 5 seconds
+            toastList.forEach(toast => toast.show());
+
+            // Close button for toasts
+            document.querySelectorAll('[data-bs-dismiss="toast"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const toastElement = this.closest('.toast');
+                    const toastInstance = bootstrap.Toast.getInstance(toastElement);
+                    toastInstance.hide();
+                });
+            });
+
+            // Initialize Flatpickr for date inputs
+            const startDatePicker = flatpickr(startDateInput, {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                defaultDate: "today",
+                theme: "material_blue",
+                onChange: function(selectedDates, dateStr) {
+                    if (dateStr) {
+                        // Update end date picker min date
+                        endDatePicker.set('minDate', dateStr);
+                        
+                        // If end date is before start date, update it
+                        if (endDatePicker.selectedDates[0] && 
+                            endDatePicker.selectedDates[0] < selectedDates[0]) {
+                            endDatePicker.setDate(dateStr);
+                        }
+                        
+                        // For half day, set end date same as start date and disable
+                        if (halfDayCheckbox.checked) {
+                            endDatePicker.setDate(dateStr);
+                            endDatePicker.close(); // Close the calendar if open
+                        }
+                    }
+                }
+            });
+
+            const endDatePicker = flatpickr(endDateInput, {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                defaultDate: "today",
+                theme: "material_blue",
+                onChange: function(selectedDates, dateStr) {
+                    if (dateStr && startDatePicker.selectedDates[0] && 
+                        selectedDates[0] < startDatePicker.selectedDates[0]) {
+                        // If end date is before start date, reset to start date
+                        endDatePicker.setDate(startDatePicker.selectedDates[0]);
+                    }
+                }
+            });
+
+            // Function to disable end date selection
+            function disableEndDate() {
+                endDateInput.classList.add('date-input-disabled');
+                endDateInput.readOnly = true;
+                endDateIcon.classList.add('disabled');
+                
+                // Disable Flatpickr instance
+                endDatePicker.set('clickOpens', false);
+                
+                // Set end date same as start date if start date exists
+                if (startDatePicker.selectedDates[0]) {
+                    endDatePicker.setDate(startDatePicker.selectedDates[0]);
+                }
+            }
+
+            // Function to enable end date selection
+            function enableEndDate() {
+                endDateInput.classList.remove('date-input-disabled');
+                endDateInput.readOnly = false;
+                endDateIcon.classList.remove('disabled');
+                
+                // Enable Flatpickr instance
+                endDatePicker.set('clickOpens', true);
+            }
+
+            // Define toggleHalfDay function
+            function toggleHalfDay() {
+                const isHalfDay = halfDayCheckbox.checked;
+                
+                if (isHalfDay) {
+                    halfDayDiv.style.display = 'block';
+                    halfDaySelect.required = true;
+                    disableEndDate();
+                } else {
+                    halfDayDiv.style.display = 'none';
+                    halfDaySelect.required = false;
+                    halfDaySelect.value = '';
+                    enableEndDate();
+                }
+            }
+
+            // Half day checkbox change handler
+            halfDayCheckbox.addEventListener('change', toggleHalfDay);
+
+            // Initialize half day state on page load
+            toggleHalfDay();
+
+            // Form submission handler
+            form.addEventListener('submit', function(event) {
+                let isValid = true;
+                let messages = [];
+
+                // Always ensure end_date field is enabled for submission
+                endDateInput.disabled = false;
+
+                // Validate leave type
+                const leaveType = document.getElementById('leave_type').value;
+                if (!leaveType) {
+                    isValid = false;
+                    messages.push('Please select a leave type.');
+                }
+
+                // Validate dates
+                const startDateVal = startDateInput.value;
+                const endDateVal = endDateInput.value;
+
+                if (!startDateVal) {
+                    isValid = false;
+                    messages.push('Please select a start date.');
+                }
+
+                if (!endDateVal) {
+                    isValid = false;
+                    messages.push('Please select an end date.');
+                }
+
+                if (startDateVal && endDateVal) {
+                    const startDate = new Date(startDateVal);
+                    const endDate = new Date(endDateVal);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    if (startDate < today) {
+                        isValid = false;
+                        messages.push('Start date cannot be in the past.');
+                    }
+                    
+                    if (endDate < startDate) {
+                        isValid = false;
+                        messages.push('End date cannot be before start date.');
+                    }
+                }
+
+                // Validate half day
+                if (halfDayCheckbox.checked) {
+                    if (!halfDaySelect.value) {
+                        isValid = false;
+                        messages.push('Please select the half day period.');
+                    }
+                    
+                    // Ensure dates are the same for half day
+                    if (startDateVal) {
+                        endDateInput.value = startDateVal;
+                    }
+                }
+
+                // Validate reason
+                const reason = document.getElementById('reason').value.trim();
+                if (!reason) {
+                    isValid = false;
+                    messages.push('Please provide a reason for your leave.');
+                } else if (reason.length < 10) {
+                    isValid = false;
+                    messages.push('Please provide a more detailed reason (at least 10 characters).');
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                    
+                    // Create error toast
+                    const toastHtml = `
+                        <div class="toast show toast-error" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <strong class="me-auto">
+                                    <i class="bi bi-exclamation-triangle-fill text-danger toast-icon"></i>
+                                    Validation Error
+                                </strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                ${messages.join('<br>')}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add to toast container
+                    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+                    
+                    // Initialize and show the new toast
+                    const toastEl = toastContainer.lastElementChild;
+                    const toast = new bootstrap.Toast(toastEl, {
+                        autohide: true,
+                        delay: 8000
+                    });
+                    toast.show();
+                    
+                    // Auto-remove after hide
+                    toastEl.addEventListener('hidden.bs.toast', function() {
+                        toastEl.remove();
+                    });
+                    
+                    return false;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...';
+
+                return true;
+            });
+
+            // Reset button state on page load
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-send me-2" aria-hidden="true"></i>Submit Application';
+        });
+    </script>
+</body>
+</html>

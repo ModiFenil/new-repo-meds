@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>User Dashboard - Medscred HRMS</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+<style>
+    :root {
+        --medscred-blue: #1a73e8;
+        --medscred-dark-blue: #0d47a1;
+        --medscred-light-blue: #e8f0fe;
+        --medscred-green: #34a853;
+        --medscred-orange: #fbbc05;
+        --medscred-red: #ea4335;
+    }
+    
+    body {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #202124;
+    }
+    
+    /* Logo styling - UPDATED FOR LARGER SIZE */
+    .navbar-logo {
+        height: 48px;
+        width: auto;
+        margin-right: 0.5rem;
+        object-fit: contain;
+    }
+
+    /* Updated navbar-brand for better alignment */
+    .navbar-brand {
+        font-weight: 700;
+        color: var(--medscred-blue) !important;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Profile icon styling - LARGER ICONS */
+    .profile-dropdown-toggle i.bi-person-circle {
+        font-size: 1.5rem !important;
+    }
+
+    .profile-dropdown-toggle i.bi-chevron-down {
+        font-size: 0.9rem !important;
+    }
+
+    /* Make the profile button larger */
+    .profile-dropdown .btn {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 1rem !important;
+    }
+    
+    .navbar {
+        background: #ffffff;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+        padding: 0.8rem 0;
+    }
+
+    .main-container {
+        max-width: 1200px;
+        margin: 1.5rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        border: none;
+        margin-bottom: 1.2rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: fit-content;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+    }
+    
+    .card-header {
+        background-color: var(--medscred-blue) !important;
+        color: white !important;
+        font-weight: 500;
+        font-size: 1.1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 12px 12px 0 0 !important;
+        border: none;
+    }
+    
+    .card-body {
+        padding: 1.2rem;
+    }
+
+    .time-card {
+        text-align: center;
+        padding: 1.2rem;
+    }
+    
+    .time-display {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 2.5rem;
+        font-weight: 500;
+        color: var(--medscred-blue);
+        margin-bottom: 0.5rem;
+    }
+    
+    .date-display {
+        font-size: 1.1rem;
+        color: #5f6368;
+        margin-bottom: 0.5rem;
+    }
+    
+    .day-display {
+        font-size: 1rem;
+        color: #5f6368;
+        font-weight: 500;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem 1rem;
+        border-radius: 12px;
+        background: white;
+        color: var(--medscred-blue);
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        border: 1px solid #dadce0;
+    }
+    
+    .action-btn:hover {
+        background: var(--medscred-light-blue);
+        color: var(--medscred-dark-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+    }
+    
+    .action-btn i {
+        font-size: 1.8rem;
+        margin-bottom: 0.8rem;
+        color: var(--medscred-blue);
+    }
+    
+    .action-btn span {
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+    .attendance-btns {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-checkin {
+        background-color: var(--medscred-green);
+        color: white;
+        font-weight: 500;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-checkin:hover:not(.btn-loading):not(:disabled) {
+        background-color: #2d8e47;
+        transform: translateY(-2px);
+        box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+    }
+    
+    .btn-checkout {
+        background-color: white;
+        color: var(--medscred-blue);
+        font-weight: 500;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--medscred-blue);
+        transition: all 0.2s ease;
+    }
+    
+    .btn-checkout:hover:not(.btn-loading):not(:disabled) {
+        background-color: var(--medscred-light-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+    }
+
+    .btn-loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: auto;
+    }
+
+    .btn-checkin:disabled {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .btn-checkout:disabled {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .status-message {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-weight: 500;
+    }
+    
+    .status-success {
+        background-color: #e6f4ea;
+        color: #137333;
+        border: 1px solid #b7e1c1;
+    }
+    
+    .status-error {
+        background-color: #fce8e6;
+        color: #c5221f;
+        border: 1px solid #f5b7b1;
+    }
+    
+    .status-warning {
+        background-color: #fef7e0;
+        color: #e37400;
+        border: 1px solid #fde293;
+    }
+    
+    .status-info {
+        background-color: #e8f0fe;
+        color: var(--medscred-dark-blue);
+        border: 1px solid #d2e3fc;
+    }
+
+    .location-error-message {
+        background-color: #fce8e6;
+        color: #c5221f;
+        border: 1px solid #f5b7b1;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .location-status {
+        background-color: #e8f0fe;
+        color: var(--medscred-dark-blue);
+        border: 1px solid #d2e3fc;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .attendance-table th {
+        background-color: #f8f9fa;
+        color: #5f6368;
+        font-weight: 500;
+        padding: 0.65rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #dadce0;
+    }
+    
+    .attendance-table td {
+        padding: 0.65rem 1rem;
+        border-bottom: 1px solid #dadce0;
+        vertical-align: middle;
+    }
+    
+    .attendance-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .attendance-table tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .badge-status {
+        padding: 0.35rem 0.7rem;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+    
+    .badge-success {
+        background-color: #e6f4ea;
+        color: #137333;
+    }
+    
+    .badge-warning {
+        background-color: #fef7e0;
+        color: #e37400;
+    }
+    
+    .badge-info {
+        background-color: #e8f0fe;
+        color: var(--medscred-dark-blue);
+    }
+
+    .quote-section {
+        padding: 1.2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        margin-bottom: 1.2rem;
+    }
+    
+    .quote-text {
+        font-size: 1.1rem;
+        font-style: italic;
+        color: #3c4043;
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+    
+    .quote-author {
+        font-size: 0.9rem;
+        color: #5f6368;
+        text-align: right;
+        font-weight: 500;
+    }
+
+    footer {
+        margin-top: auto;
+        padding: 1.5rem;
+        text-align: center;
+        color: #5f6368;
+        font-size: 0.9rem;
+        background: white;
+        border-top: 1px solid #dadce0;
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1100;
+        max-width: 350px;
+        width: 100%;
+    }
+    
+    .toast {
+        border-radius: 8px;
+        box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+        border: none;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    
+    .toast-header {
+        border-bottom: none;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+    }
+    
+    .toast-body {
+        padding: 1rem;
+    }
+    
+    .toast-success {
+        background-color: #e6f4ea;
+        border-left: 4px solid #34a853;
+    }
+    
+    .toast-error {
+        background-color: #fce8e6;
+        border-left: 4px solid #ea4335;
+    }
+    
+    .toast-warning {
+        background-color: #fef7e0;
+        border-left: 4px solid #fbbc05;
+    }
+    
+    .toast-info {
+        background-color: #e8f0fe;
+        border-left: 4px solid #1a73e8;
+    }
+
+    /* Profile dropdown styles - Click-based version */
+    .profile-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-dropdown-toggle {
+        cursor: pointer;
+        border: none;
+        background: none;
+        padding: 0;
+    }
+
+    .profile-dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: white;
+        min-width: 220px;
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1);
+        border-radius: 8px;
+        z-index: 1050;
+        padding: 0.5rem 0;
+        margin-top: 0.5rem;
+        border: 1px solid #dadce0;
+    }
+
+    .profile-dropdown.active .profile-dropdown-content {
+        display: block;
+    }
+
+    .profile-dropdown-item {
+        color: #3c4043;
+        padding: 0.75rem 1rem;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.2s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+    }
+
+    .profile-dropdown-item:hover {
+        background-color: #f8f9fa;
+        color: var(--medscred-blue);
+        text-decoration: none;
+    }
+
+    .profile-dropdown-divider {
+        height: 1px;
+        background-color: #e0e0e0;
+        margin: 0.5rem 0;
+    }
+
+    /* Ensure dropdown stays open when hovering over content */
+    .profile-dropdown-content:hover {
+        display: block;
+    }
+
+    /* NEW LAYOUT - Clock and Attendance Side by Side */
+    @media (min-width: 768px) {
+        .clock-attendance-container {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        .clock-column {
+            flex: 0 0 33.333333%; /* Equivalent to col-md-4 */
+        }
+        
+        .attendance-column {
+            flex: 0 0 66.666667%; /* Equivalent to col-md-8 */
+        }
+        
+        /* Ensure clock card matches attendance height */
+        .clock-column .dashboard-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* Quote section moves below main content on medium screens */
+        .quote-below {
+            margin-top: 1rem;
+        }
+    }
+
+    /* Large desktop layout with 3 columns */
+    @media (min-width: 992px) {
+        .main-dashboard-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        .clock-column {
+            flex: 0 0 25%; /* Clock column */
+        }
+        
+        .attendance-column {
+            flex: 0 0 50%; /* Attendance column */
+        }
+        
+        .quote-column {
+            flex: 0 0 25%; /* Quote column */
+        }
+        
+        /* Reset quote margin */
+        .quote-below {
+            margin-top: 0;
+        }
+    }
+
+    /* Desktop Layout Fixes */
+    @media (min-width: 768px) {
+        .row {
+            --bs-gutter-x: 1.5rem;
+            --bs-gutter-y: 0;
+            margin-bottom: 0;
+        }
+    }
+
+    /* Large desktop optimizations */
+    @media (min-width: 1200px) {
+        .main-container {
+            margin: 1.2rem auto;
+        }
+        
+        .dashboard-card {
+            margin-bottom: 1rem;
+        }
+        
+        .card-body {
+            padding: 1rem 1.2rem;
+        }
+        
+        .time-card {
+            padding: 1rem;
+        }
+        
+        .quote-section {
+            padding: 1rem 1.2rem;
+        }
+    }
+
+    /* Ultra-large screens (1400px+) */
+    @media (min-width: 1400px) {
+        .main-container {
+            max-width: 1300px;
+            margin: 1rem auto;
+        }
+        
+        .time-card {
+            padding: 0.8rem;
+        }
+        
+        .time-display {
+            font-size: 2rem;
+        }
+    }
+    
+    /* Mobile-first responsive design */
+    @media (max-width: 767px) {
+        .main-container {
+            padding: 0 0.5rem;
+            margin: 0.5rem auto;
+        }
+        
+        .dashboard-card {
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+        
+        .card-body {
+            padding: 0.75rem;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+        
+        /* Better attendance table styling */
+        .attendance-table {
+            font-size: 0.8rem;
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .attendance-table th,
+        .attendance-table td {
+            padding: 0.4rem 0.3rem;
+            font-size: 0.75rem;
+        }
+        
+        /* Better "No records" message styling */
+        .attendance-table td.text-center {
+            white-space: normal !important;
+            padding: 2rem 1rem !important;
+        }
+        
+        .attendance-table .bi-inbox {
+            font-size: 3rem !important;
+        }
+        
+        /* Compact buttons */
+        .attendance-btns {
+            flex-direction: column;
+            width: 100%;
+            gap: 0.5rem;
+        }
+        
+        .btn-checkin, .btn-checkout {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Status messages */
+        .location-status, .location-error-message {
+            font-size: 0.8rem;
+            padding: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Time card improvements */
+        .time-card {
+            padding: 1rem 0.5rem;
+        }
+
+        .time-display {
+            font-size: 1.6rem;
+        }
+
+        .date-display, .day-display {
+            font-size: 0.85rem;
+        }
+
+        /* Quote section improvements */
+        .quote-section {
+            padding: 0.75rem;
+        }
+
+        .quote-text {
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+        .quote-author {
+            font-size: 0.8rem;
+        }
+
+        /* Navbar improvements */
+        .navbar {
+            padding: 0.4rem 0;
+        }
+
+        .navbar-logo {
+            height: 36px;
+        }
+        
+        .navbar-brand {
+            font-size: 1rem;
+        }
+
+        .container-fluid {
+            padding: 0 0.5rem;
+        }
+
+        /* Profile button */
+        .profile-dropdown .btn {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .profile-dropdown-toggle i.bi-person-circle {
+            font-size: 1.2rem !important;
+        }
+
+        .profile-dropdown-content {
+            min-width: 200px;
+            right: -10px;
+        }
+
+        /* Hide user name on smaller screens */
+        .user-name-mobile {
+            display: none !important;
+        }
+
+        /* Mobile stacking order */
+        .mobile-order-1 {
+            order: 1;
+        }
+        
+        .mobile-order-2 {
+            order: 2;
+        }
+        
+        .mobile-order-3 {
+            order: 3;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .main-container {
+            padding: 0 0.25rem;
+        }
+        
+        .dashboard-card {
+            margin-bottom: 0.75rem;
+            border-radius: 6px;
+        }
+        
+        .card-body {
+            padding: 0.5rem;
+        }
+        
+        .card-header {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Very compact table */
+        .attendance-table th,
+        .attendance-table td {
+            padding: 0.25rem 0.2rem;
+            font-size: 0.7rem;
+        }
+        
+        /* Even smaller time display */
+        .time-display {
+            font-size: 1.4rem;
+        }
+        
+        .date-display, .day-display {
+            font-size: 0.8rem;
+        }
+        
+        /* Compact quote */
+        .quote-section {
+            padding: 0.5rem;
+        }
+        
+        .quote-text {
+            font-size: 0.85rem;
+        }
+        
+        /* Ultra compact buttons */
+        .btn-checkin, .btn-checkout {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.85rem;
+        }
+        
+        /* Status messages */
+        .location-status, .location-error-message {
+            font-size: 0.75rem;
+            padding: 0.4rem;
+        }
+
+        /* Navbar ultra compact */
+        .navbar-logo {
+            height: 30px;
+        }
+        
+        .navbar-brand {
+            font-size: 0.9rem;
+        }
+        
+        .navbar-brand span.brand-text {
+            display: none;
+        }
+
+        .profile-dropdown .btn .d-none {
+            display: none !important;
+        }
+
+        .profile-dropdown-toggle i.bi-person-circle {
+            font-size: 1.2rem !important;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .action-btn {
+            padding: 1rem;
+        }
+        
+        .action-btn i {
+            font-size: 1.5rem;
+        }
+
+        /* Better button spacing */
+        .attendance-btns {
+            gap: 0.5rem;
+        }
+    }
+
+    /* Ultra small screens - phones in portrait */
+    @media (max-width: 400px) {
+        .main-container {
+            padding: 0 0.1rem;
+        }
+        
+        .dashboard-card {
+            margin-bottom: 0.5rem;
+        }
+        
+        .time-display {
+            font-size: 1.2rem;
+        }
+        
+        .navbar-logo {
+            height: 26px;
+        }
+        
+        .navbar-brand {
+            font-size: 0.8rem;
+        }
+        
+        .profile-dropdown-content {
+            min-width: 180px;
+            right: -20px;
+        }
+    }
+</style>
+</head>
+<body>
+<!-- Toast Notification Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand navbar-light">
+    <div class="container-fluid">
+        <span class="navbar-brand">
+            <img src="{{ url_for('static', filename='images/medscred-logo.png') }}" alt="Medscred Logo" class="navbar-logo">
+        </span>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <span class="d-none d-lg-inline text-muted user-name-mobile" style="font-size: 0.9rem;">
+                Welcome {{ firstname }} {{ lastname }}
+            </span>
+            <div class="profile-dropdown">
+                <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 profile-dropdown-toggle" 
+                        aria-label="User Profile" 
+                        onclick="toggleProfileDropdown(event)">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="d-none d-md-inline">Profile</span>
+                    <i class="bi bi-chevron-down ms-1 d-none d-md-inline"></i>
+                </button>
+                <div class="profile-dropdown-content">
+                    <a href="{{ url_for('user_profile') }}" class="profile-dropdown-item">
+                        <i class="bi bi-person me-2"></i> My Profile
+                    </a>
+                    <a href="{{ url_for('apply_leave') }}" class="profile-dropdown-item">
+                        <i class="bi bi-calendar-plus me-2"></i> Apply for Leave
+                    </a>
+                    <a href="{{ url_for('my_leaves') }}" class="profile-dropdown-item">
+                        <i class="bi bi-calendar-check me-2"></i> My Leaves
+                    </a>
+                    <div class="profile-dropdown-divider"></div>
+                    <a href="{{ url_for('logout') }}" class="profile-dropdown-item">
+                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="main-container">
+    <!-- Status message -->
+    <!-- Status message - ENHANCED FOR LEAVE NOTIFICATIONS -->
+{% if msg %}
+    {% set msg_class = 'status-success' if msg_type == 'success' else 
+                       'status-error' if msg_type == 'error' else 
+                       'status-warning' if msg_type == 'warning' else 'status-info' %}
+    <div class="status-message {{ msg_class }}">
+        {% if msg_type == 'success' %}
+            <i class="bi bi-check-circle me-2"></i>
+        {% elif msg_type == 'error' %}
+            <i class="bi bi-exclamation-triangle me-2"></i>
+        {% elif msg_type == 'warning' %}
+            <i class="bi bi-exclamation-triangle me-2"></i>
+        {% else %}
+            <i class="bi bi-info-circle me-2"></i>
+        {% endif %}
+        {{ msg }}
+    </div>
+{% endif %}
+
+    
+    <!-- Main Dashboard Layout - RESTRUCTURED -->
+    <div class="main-dashboard-row">
+        <!-- Clock Column -->
+        <div class="clock-column mobile-order-1">
+            <div class="dashboard-card time-card">
+                <div id="clock" class="time-display" aria-live="polite">--:--:--</div>
+                <div id="date" class="date-display" aria-live="polite">-- --- ----</div>
+                <div id="day" class="day-display" aria-live="polite">------</div>
+            </div>
+        </div>
+        
+        <!-- Attendance Column -->
+        <div class="attendance-column mobile-order-3">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="bi bi-clock-history me-2"></i>Attendance
+                </div>
+                <div class="card-body">
+                    <!-- Location Status -->
+                    <div id="locationStatus" class="location-status" style="display: none;">
+                        <i class="bi bi-geo-alt me-1"></i>
+                        <span id="locationStatusText">Checking location access...</span>
+                    </div>
+                    
+                    <!-- Location Error Message - SIMPLIFIED -->
+                    <div id="locationError" class="location-error-message" style="display: none;">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <div class="flex-grow-1">
+                            <span id="locationErrorText">Location required for attendance</span>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-primary" onclick="handleLocationRetry()">
+                                    <i class="bi bi-geo-alt me-1"></i> Try Again
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Check-in/out buttons -->
+                    <div id="checkButtons" class="attendance-btns mb-4" style="display: none;">
+                        <div id="checkinContainer" style="display: none;">
+                            <form id="checkinForm" method="POST" class="w-100">
+                                <input type="hidden" name="latitude" id="checkinLatitude">
+                                <input type="hidden" name="longitude" id="checkinLongitude">
+                                <input type="hidden" name="location_name" id="checkinLocationName">
+                                <button type="button" onclick="handleCheckin()" class="btn btn-checkin" id="checkinBtn" disabled>
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Check In
+                                </button>
+                            </form>
+                        </div>
+                        <div id="checkoutContainer" style="display: none;">
+                            <form id="checkoutForm" method="POST" class="w-100">
+                                <input type="hidden" name="latitude" id="checkoutLatitude">
+                                <input type="hidden" name="longitude" id="checkoutLongitude">
+                                <input type="hidden" name="location_name" id="checkoutLocationName">
+                                <button type="button" onclick="handleCheckout()" class="btn btn-checkout" id="checkoutBtn" disabled>
+                                    <i class="bi bi-box-arrow-in-left me-2"></i> Check Out
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Status -->
+                    <div id="currentStatus" class="mb-4" style="display: none;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle text-primary"></i>
+                            <span id="statusText"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Attendance History - NO LOCATION COLUMN -->
+                    <div class="table-responsive">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if history %}
+                                    {% for record in history %}
+                                    <tr>
+                                        <td>
+                                            {% if record.date %}
+                                                <span class="fw-bold">{{ record.date.strftime('%Y-%m-%d') if record.date else record.checkin_time.strftime('%Y-%m-%d') if record.checkin_time else '-' }}</span>
+                                                <br>
+                                                <small class="text-muted">{{ record.date.strftime('%A') if record.date else record.checkin_time.strftime('%A') if record.checkin_time else '' }}</small>
+                                            {% elif record.checkin_time %}
+                                                <span class="fw-bold">{{ record.checkin_time.strftime('%Y-%m-%d') }}</span>
+                                                <br>
+                                                <small class="text-muted">{{ record.checkin_time.strftime('%A') }}</small>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.checkin_time %}
+                                                <span class="text-success">
+                                                    <i class="bi bi-box-arrow-in-right me-1"></i>
+                                                    {{ record.checkin_time.strftime('%H:%M') }}
+                                                </span>
+                                            {% elif record.check_in %}
+                                                <span class="text-success">
+                                                    <i class="bi bi-box-arrow-in-right me-1"></i>
+                                                    {{ record.check_in.strftime('%H:%M') }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.checkout_time %}
+                                                <span class="text-primary">
+                                                    <i class="bi bi-box-arrow-in-left me-1"></i>
+                                                    {{ record.checkout_time.strftime('%H:%M') }}
+                                                </span>
+                                            {% elif record.check_out %}
+                                                <span class="text-primary">
+                                                    <i class="bi bi-box-arrow-in-left me-1"></i>
+                                                    {{ record.check_out.strftime('%H:%M') }}
+                                                </span>
+                                            {% elif record.checkin_time and not record.checkout_time %}
+                                                <span class="badge badge-warning badge-status">
+                                                    <i class="bi bi-hourglass-split me-1"></i>In Progress
+                                                </span>
+                                            {% elif record.check_in and not record.check_out %}
+                                                <span class="badge badge-warning badge-status">
+                                                    <i class="bi bi-hourglass-split me-1"></i>In Progress
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.work_duration %}
+                                                <span class="badge badge-success badge-status">
+                                                    <i class="bi bi-clock-fill me-1"></i>{{ record.work_duration }}
+                                                </span>
+                                            {% elif record.duration %}
+                                                <span class="badge badge-success badge-status">
+                                                    <i class="bi bi-clock-fill me-1"></i>{{ record.duration }}
+                                                </span>
+                                            {% elif (record.checkin_time and not record.checkout_time) or (record.check_in and not record.check_out) %}
+                                                <span class="badge badge-info badge-status">
+                                                    <i class="bi bi-clock me-1"></i>Working...
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                                            <strong>No attendance records found</strong>
+                                            <br>
+                                            <small>Check in to start tracking your work time</small>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quote Column -->
+        <div class="quote-column mobile-order-2">
+            <div class="dashboard-card quote-section">
+                <h6 class="text-muted mb-3"><i class="bi bi-chat-square-quote me-2"></i>Quote of the Day</h6>
+                <div class="quote-text" id="quoteText">
+                    Loading quote...
+                </div>
+                <div class="quote-author" id="quoteAuthor"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    &copy; {{ current_year or '2025' }} Medscred HRMS. All rights reserved.
+</footer>
+
+<!-- Bootstrap 5 JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Date and Clock
+    function updateDateTime() {
+        const now = new Date();
+        
+        // Time
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        
+        // Date
+        const optionsDate = { day: 'numeric', month: 'short', year: 'numeric' };
+        const dateStr = now.toLocaleDateString(undefined, optionsDate);
+        document.getElementById('date').textContent = dateStr;
+        
+        // Day
+        const dayStr = now.toLocaleDateString(undefined, { weekday: 'long' });
+        document.getElementById('day').textContent = dayStr;
+    }
+    
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Profile dropdown functionality
+    function toggleProfileDropdown(event) {
+        event.stopPropagation();
+        const dropdown = document.querySelector('.profile-dropdown');
+        dropdown.classList.toggle('active');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.querySelector('.profile-dropdown');
+        const isClickInside = dropdown.contains(event.target);
+        
+        if (!isClickInside) {
+            dropdown.classList.remove('active');
+        }
+    });
+
+    // Close dropdown when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            document.querySelector('.profile-dropdown').classList.remove('active');
+        }
+    });
+
+    // Daily Quote
+    const dailyQuotes = [
+        {
+            text: "Quality means doing it right when no one is looking.",
+            author: "Henry Ford"
+        },
+        {
+            text: "Coming together is a beginning, staying together is progress, and working together is success.",
+            author: "Henry Ford"
+        },
+        {
+            text: "Hard work beats talent when talent doesn't work hard.",
+            author: "Tim Notke"
+        },
+        {
+            text: "Success usually comes to those who are too busy to be looking for it.",
+            author: "Henry David Thoreau"
+        },
+        {
+            text: "The only way to do great work is to love what you do.",
+            author: "Steve Jobs"
+        }
+    ];
+
+    function displayDailyQuote() {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 0);
+        const diff = now - start;
+        const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const quoteIndex = dayOfYear % dailyQuotes.length;
+        const todaysQuote = dailyQuotes[quoteIndex];
+        
+        document.getElementById('quoteText').textContent = `"${todaysQuote.text}"`;
+        document.getElementById('quoteAuthor').textContent = `— ${todaysQuote.author}`;
+    }
+    displayDailyQuote();
+
+    // Simplified Mobile-First Location System
+    let locationAvailable = false;
+    let currentLocation = null;
+    let userStatus = null;
+    let isRequestingLocation = false;
+
+    // Check if geolocation is supported
+    function isGeolocationSupported() {
+        return 'geolocation' in navigator;
+    }
+
+    // Simple location status display
+    function showLocationStatus(message, isError = false) {
+        const locationStatus = document.getElementById('locationStatus');
+        const locationError = document.getElementById('locationError');
+        const statusText = document.getElementById('locationStatusText');
+        const errorText = document.getElementById('locationErrorText');
+        
+        if (isError) {
+            locationStatus.style.display = 'none';
+            locationError.style.display = 'flex';
+            errorText.innerHTML = message;
+        } else {
+            locationStatus.style.display = 'flex';
+            statusText.textContent = message;
+            locationError.style.display = 'none';
+        }
+    }
+
+    // Fast mobile location request - NO RETRIES, NO WATCHING
+    async function requestLocationAccess() {
+        if (isRequestingLocation) {
+            console.log('Location request already in progress');
+            return locationAvailable;
+        }
+        
+        if (!isGeolocationSupported()) {
+            showLocationStatus('Location not supported on this device', true);
+            return false;
+        }
+
+        isRequestingLocation = true;
+        showLocationStatus('Getting location...');
+
+        try {
+            // Single attempt with mobile-optimized settings
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(
+                    resolve,
+                    reject,
+                    {
+                        enableHighAccuracy: false,  // Faster on mobile
+                        timeout: 8000,              // Shorter timeout
+                        maximumAge: 300000          // Use 5-minute cached location
+                    }
+                );
+            });
+
+            currentLocation = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy
+            };
+
+            locationAvailable = true;
+            showLocationStatus('✓ Location ready');
+            updateActionButtons();
+            isRequestingLocation = false;
+            return true;
+
+        } catch (error) {
+            console.error('Location failed:', error);
+            locationAvailable = false;
+            isRequestingLocation = false;
+            
+            let errorMessage = '';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = `Location permission denied.<br>
+                    <strong>Please:</strong> Allow location access and refresh page`;
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = `Location unavailable.<br>
+                    <strong>Please:</strong> Turn on GPS and refresh page`;
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = `Location timeout.<br>
+                    <strong>Please:</strong> Try again or refresh page`;
+                    break;
+                default:
+                    errorMessage = `Location error.<br>
+                    <strong>Please:</strong> Enable GPS and refresh page`;
+            }
+            
+            showLocationStatus(errorMessage, true);
+            updateActionButtons();
+            return false;
+        }
+    }
+
+    // Simple retry function
+    async function handleLocationRetry() {
+        if (isRequestingLocation) return;
+        
+        showLocationStatus('Retrying location access...');
+        await requestLocationAccess();
+    }
+
+    // Simplified getCurrentLocation
+    async function getCurrentLocation() {
+        if (!locationAvailable || !currentLocation) {
+            // Try once more if not available
+            const success = await requestLocationAccess();
+            if (!success) {
+                throw new Error('Location not available');
+            }
+        }
+        
+        return currentLocation;
+    }
+
+    function checkUserStatus() {
+        const today = new Date().toISOString().split('T')[0];
+        const rows = document.querySelectorAll('.attendance-table tbody tr');
+        
+        if (rows.length > 0) {
+            const lastRow = rows[0];
+            const dateCell = lastRow.querySelector('td:nth-child(1)');
+            const statusCell = lastRow.querySelector('td:nth-child(3)');
+            
+            if (dateCell && dateCell.textContent.includes(today)) {
+                if (statusCell && statusCell.textContent.includes('In Progress')) {
+                    return 'checked_in';
+                }
+                return 'checked_out_today';
+            }
+        }
+        return 'checked_out';
+    }
+
+    function updateActionButtons() {
+        const checkButtons = document.getElementById('checkButtons');
+        const checkinContainer = document.getElementById('checkinContainer');
+        const checkoutContainer = document.getElementById('checkoutContainer');
+        const currentStatus = document.getElementById('currentStatus');
+        const statusText = document.getElementById('statusText');
+        const checkinBtn = document.getElementById('checkinBtn');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        
+        userStatus = checkUserStatus();
+        
+        checkinContainer.style.display = 'none';
+        checkoutContainer.style.display = 'none';
+        currentStatus.style.display = 'block';
+        checkButtons.style.display = 'flex';
+        
+        // Enable/disable buttons based on location availability
+        if (checkinBtn) {
+            checkinBtn.disabled = !locationAvailable;
+        }
+        
+        if (checkoutBtn) {
+            checkoutBtn.disabled = !locationAvailable;
+        }
+        
+        switch(userStatus) {
+            case 'checked_in':
+                statusText.textContent = 'You are currently checked in. Ready to check out?';
+                checkoutContainer.style.display = 'block';
+                break;
+            case 'checked_out_today':
+                statusText.textContent = 'You have completed today\'s session.';
+                break;
+            default:
+                statusText.textContent = 'Ready to check in for today?';
+                checkinContainer.style.display = 'block';
+        }
+    }
+
+    // Fast address resolution
+    async function getReadableAddress(latitude, longitude) {
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+                { 
+                    signal: AbortSignal.timeout(5000) // 5 second timeout
+                }
+            );
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data?.display_name) {
+                    return data.display_name.split(',').slice(0, 3).join(', ');
+                }
+            }
+        } catch (error) {
+            console.log('Geocoding failed, using coordinates');
+        }
+        
+        return `Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    }
+
+    async function handleCheckin() {
+        const button = document.querySelector('.btn-checkin');
+        const form = document.getElementById('checkinForm');
+        
+        button.classList.add('btn-loading');
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking In...';
+
+        try {
+            const location = await getCurrentLocation();
+            const locationName = await getReadableAddress(location.latitude, location.longitude);
+            
+            document.getElementById('checkinLatitude').value = location.latitude;
+            document.getElementById('checkinLongitude').value = location.longitude;
+            document.getElementById('checkinLocationName').value = locationName;
+            
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'checkin';
+            form.appendChild(actionInput);
+            
+            form.submit();
+            
+        } catch (error) {
+            button.classList.remove('btn-loading');
+            button.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i> Check In';
+            showToast('Check-in Failed', 'Location required. Please enable GPS and try again.', 'error');
+            await requestLocationAccess();
+        }
+    }
+
+    async function handleCheckout() {
+        const button = document.querySelector('.btn-checkout');
+        const form = document.getElementById('checkoutForm');
+        
+        button.classList.add('btn-loading');
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking Out...';
+
+        try {
+            const location = await getCurrentLocation();
+            const locationName = await getReadableAddress(location.latitude, location.longitude);
+            
+            document.getElementById('checkoutLatitude').value = location.latitude;
+            document.getElementById('checkoutLongitude').value = location.longitude;
+            document.getElementById('checkoutLocationName').value = locationName;
+            
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'checkout';
+            form.appendChild(actionInput);
+            
+            form.submit();
+            
+        } catch (error) {
+            button.classList.remove('btn-loading');
+            button.innerHTML = '<i class="bi bi-box-arrow-in-left me-2"></i> Check Out';
+            showToast('Check-out Failed', 'Location required. Please enable GPS and try again.', 'error');
+            await requestLocationAccess();
+        }
+    }
+
+    function showToast(title, message, type = 'info', duration = 3000) {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type} show`;
+        
+        toast.innerHTML = `
+            <div class="toast-header">
+                <strong class="me-auto">${title}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        if (duration > 0) {
+            setTimeout(() => toast.remove(), duration);
+        }
+    }
+
+    // Simple initialization - NO WATCHERS, NO INTERVALS
+    window.addEventListener('load', function() {
+        console.log('App loaded');
+        updateActionButtons();
+        
+        // Try location once on load
+        if (isGeolocationSupported()) {
+            requestLocationAccess();
+        } else {
+            showLocationStatus('Location not supported', true);
+        }
+    });
+</script>
+</body>
+</html>
